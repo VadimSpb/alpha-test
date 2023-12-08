@@ -35,11 +35,11 @@ $ docker compose up airflow-init
 $ docker compose up
 ```
 ####  Настройте Airflow
-1. Введи в строке поиска браузера адрес web-сервера airflow 
+1. Введите в строке поиска браузера адрес web-сервера airflow 
 `http://localhost:8081/home`
-2. Введи логин `airflow` и пароль `airflow`
-3. Создай переменную openweathermap_access_token в Admin-> Variables (подробнее о получении токена [тут](https://home.openweathermap.org/api_keys))
-4. Создай соединение postgres_local. Для использования postgres, установленного в группе контейнеров, введи:
+2. Введите логин `airflow` и пароль `airflow`
+3. Создайте переменную openweathermap_access_token в Admin-> Variables (подробнее о получении токена [тут](https://home.openweathermap.org/api_keys))
+4. Создайте соединение postgres_local. Для использования postgres, установленного в группе контейнеров, введи:
 ```    
 Connection Type : Postgres
 Host            : postgres
@@ -48,12 +48,12 @@ Login           : airflow
 Password        : airflow
 Port            : 5432
 ``` 
-5. Cоздай переменную 'bronze_tier_path' в Admin-> Variables с путем до директории загрузки сырых данных
-6. Cоздай переменную 'silver_tier_path' в Admin-> Variables с путем до директории хранения обработанных данных
-7. Создай таблицу [weather_forecasts](#DDL-таблицы-слоя-источника) для загрузки сырых данных 
+5. Cоздайте переменную 'bronze_tier_path' в Admin-> Variables с путем до директории загрузки сырых данных
+6. Cоздайте переменную 'silver_tier_path' в Admin-> Variables с путем до директории хранения обработанных данных
+7. Создайте таблицу [weather_forecasts](#DDL-таблицы-слоя-источника) для загрузки сырых данных 
 ####  Запустите DAG 
 
-Перейди во вкладку DAGs и нажми кнопку "run DAG"
+Перейдите во вкладку DAGs и нажми кнопку "run DAG"
 
 Код DAG [здесь](https://github.com/VadimSpb/alpha-test/blob/main/dags/extract_48hour_forecast.py).    
 
