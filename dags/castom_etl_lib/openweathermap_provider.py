@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from airflow.models import Variable
 
 
 def _get_city_coordinates(city_name, appid):
@@ -30,7 +31,7 @@ def openweathermap_provider(city_name, appid):
     lat, lon = _get_city_coordinates(city_name, appid)
     response = get_weather_forecast(lat, lon, appid)
     forecast_data = response['hourly']
-    file_path = '/opt/airflow/bronze'
+    file_path = Variable.get("bronze_tier_path")
     full_path = os.path.join(file_path, f"{city_name}.json")
     with open(full_path, 'a') as json_file:
         json.dump(forecast_data, json_file, indent=4)
