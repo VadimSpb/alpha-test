@@ -4,6 +4,7 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 
 from castom_etl_lib.openweathermap_provider import openweathermap_provider
+from castom_etl_lib.json_to_csv_transformer import process_json_to_csv
 
 description = ''' 
     This DAG extracts hourly weather forecast for 48 hours taken from www.openweathermap.org
@@ -25,7 +26,6 @@ default_args = {
 
 postgres_conn_id = 'postgres_local'
 openweathermap_access_token = Variable.get("openweathermap_access_token")
-bronze_path = '../bronze/data.json'
 
 dag = DAG(
     dag_id='extract_48hour_forecast',
@@ -39,28 +39,25 @@ dag = DAG(
     tags=['weather_forecast']
 )
 
-for city in cities:
-    extract_node = PythonOperator(
-        task_id=f"extract_task_{city.replace(' ','_')}",
-        python_callable=openweathermap_provider,
-        op_kwargs={
-            'city_name': city,
-            'appid': openweathermap_access_token,
-            'file_path': bronze_path,
-        },
-        dag=dag,
-    )
-
-    # transform_node = PythonOperator(
-    #     task_id=f"transform_task_{city.replace(' ','_')}",
+for city_name in cities:
+    # extract_node = PythonOperator(
+    #     task_id=f"extract_task_{city_name.replace(' ','_')}",
     #     python_callable=openweathermap_provider,
     #     op_kwargs={
-    #         'city': city,
+    #         'city_name': city_name,
     #         'appid': openweathermap_access_token,
-    #         'file_path': bronze_path,
     #     },
     #     dag=dag,
     # )
+
+    transform_node = PythonOperator(
+        task_id=f"transform_task_{city_name.replace(' ','_')}",
+        python_callable=process_json_to_csv,
+        op_kwargs={
+            'city_name': city_name,
+        },
+        dag=dag,
+    )
     #
     # load_node = PythonOperator(
     #     task_id=f"load_task_{city.replace(' ','_')}",
