@@ -48,9 +48,14 @@ Port            : 5432
 
 Перейди во вкладку DAGs и нажми кнопку "run DAG"
 
-### Примечания
+#### Какие существуют возможные пути ускорения получения данных по API и их преобразования? 
+Зависит от правил предоставления данных по api. Если есть возможность параллельных запросов - можно запустить сбор данных параллельно по каждому городу.
 
-#### DDL таблицы слоя источника
+#### Возможно ли эти способы использовать в Airflow?
+Да. Текущая реализация использует минимальные настройки. Можно увеличить число исполняемых параллельно задач в настройках DAG и настройках Airflow
+
+
+### DDL таблицы слоя источника
 ```sql
 CREATE TABLE public.weather_forecasts (
     city VARCHAR(255),
@@ -63,5 +68,39 @@ CREATE TABLE public.weather_forecasts (
 CREATE INDEX idx_weather_data_city ON public.weather_forecasts(city);
 CREATE INDEX idx_weather_data_date ON public.weather_forecasts(date);
 ```
+### DDL витрины начала дождя 
+**Задача:** Используя таблицу с сырыми данными, необходимо собрать витрину, где для каждого города и дня будут указаны часы начала дождя. Условимся, что дождь может начаться только 1 раз за день в любом из городов.
+```sql
+CREATE VIEW rain_start_time AS
+SELECT
+    city,
+    date,
+    MIN(hour) as rain_start_hour
+FROM weather_forecasts
+WHERE is_rainy = 1
+GROUP BY city, date;
+```
 
+### DDL скользящее среднее по температуре и по давлению
+**Задача:** Необходимо создать витрину, где для каждого города, дня и часа будет рассчитано скользящее среднее по температуре и по давлению.
+```sql
+CREATE VIEW hourly_avg_weather AS
+SELECT
+    city,
+    date,
+    hour,
+    AVG(temperature_c) 
+      OVER (PARTITION BY city, date 
+            ORDER BY hour 
+            ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
+            ) as avg_temperature_c,
+    AVG(pressure_mm) 
+      OVER (PARTITION BY city, date 
+            ORDER BY hour 
+            ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
+            ) as avg_pressure_mm
+FROM
+    weather_forecasts;
+```
+*Примечание: Так как не указан период для скользящего, я выбрал среднесуточные показания*
 
