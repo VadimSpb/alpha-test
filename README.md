@@ -21,8 +21,8 @@ $ git clone https://github.com/VadimSpb/alpha-test.git
 $ cd alpha-test
 ```
 
-#### Запусти docker-контейнеров
-
+#### Запусти docker-контейнеры
+*Если docker не установлен - [здесь инструкция по установке](https://www.docker.com/get-started/)*
 ```sh
 $ docker compose up airflow-init
 $ docker compose up
