@@ -56,6 +56,7 @@ Port            : 5432
 
 
 ### DDL таблицы слоя источника
+
 ```sql
 CREATE TABLE public.weather_forecasts (
     city VARCHAR(255),
@@ -69,6 +70,7 @@ CREATE INDEX idx_weather_data_city ON public.weather_forecasts(city);
 CREATE INDEX idx_weather_data_date ON public.weather_forecasts(date);
 ```
 ### DDL витрины начала дождя 
+
 **Задача:** Используя таблицу с сырыми данными, необходимо собрать витрину, где для каждого города и дня будут указаны часы начала дождя. Условимся, что дождь может начаться только 1 раз за день в любом из городов.
 ```sql
 CREATE VIEW rain_start_time AS
@@ -80,27 +82,41 @@ FROM weather_forecasts
 WHERE is_rainy = 1
 GROUP BY city, date;
 ```
+**Сэмпл [здесь](outputs%2FDM%20rains.csv).**
 
 ### DDL скользящее среднее по температуре и по давлению
+
 **Задача:** Необходимо создать витрину, где для каждого города, дня и часа будет рассчитано скользящее среднее по температуре и по давлению.
 ```sql
 CREATE VIEW hourly_avg_weather AS
-SELECT
+WITH avg_data as (
+    SELECT
+        city,
+        date,
+        hour,
+        AVG(temperature_c) 
+          OVER (PARTITION BY city, date 
+                ORDER BY hour 
+                ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
+                ) AS avg_temperature_c,
+        AVG(pressure_mm) 
+          OVER (PARTITION BY city, date 
+                ORDER BY hour 
+                ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
+                ) AS avg_pressure_mm
+    FROM weather_forecasts
+) 
+SELECT 
     city,
     date,
     hour,
-    AVG(temperature_c) 
-      OVER (PARTITION BY city, date 
-            ORDER BY hour 
-            ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
-            ) as avg_temperature_c,
-    AVG(pressure_mm) 
-      OVER (PARTITION BY city, date 
-            ORDER BY hour 
-            ROWS BETWEEN 24 PRECEDING AND CURRENT ROW
-            ) as avg_pressure_mm
-FROM
-    weather_forecasts;
+    ROUND(avg_temperature_c::numeric, 0) AS avg_temperature_c,
+    ROUND(avg_pressure_mm::numeric, 0) AS avg_pressure_mm
+FROM avg_data;
 ```
+
+**Сэмпл [здесь](outputs%2FDM%20average.csv).**
+
 *Примечание: Так как не указан период для скользящего, я выбрал среднесуточные показания*
 
+**Ссылка на google colab с DDL витрин [здесь](https://colab.research.google.com/drive/1DXQ7igpJ2QUnzmN5insgTdTFZEzLRzZI?usp=sharing).**
