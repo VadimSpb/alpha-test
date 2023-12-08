@@ -1,0 +1,9 @@
+/logs/dag_id=extract_48hour_forecast/
+/logs/dag_processor_manager/
+/logs/scheduler/
+/silver/Kazan.csv
+/silver/Moscow.csv
+/silver/Novosibirsk.csv
+/silver/Saint Petersburg.csv
+/silver/Tula.csv
+.gitignore
