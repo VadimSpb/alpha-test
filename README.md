@@ -142,7 +142,7 @@ https://yandex.ru/dev/metrika/doc/api2/logs/fields/visits.html
 
 ### Решение.
 
-Наиболее органичное решение описано в [Яндекс.справке](https://yandex.ru/support/metrica/pro/cloud.html):
+Продумывая архитектуру хранилища я опирался на решение, описанное в [Яндекс.справке](https://yandex.ru/support/metrica/pro/cloud.html), так как счёл его органичным для бизнес требований:
 
 
 ![нативное решение](https://yastatic.net/s3/doc-binary/freeze/Zx2Ak31fUh06j9caAFJEmswt90g.svg)
