@@ -41,7 +41,27 @@ Login           : airflow
 Password        : airflow
 Port            : 5432
 ``` 
+5. Cоздай переменную 'bronze_tier_path' в Admin-> Variables с путем до директории загрузки сырых данных
+6. Cоздай переменную 'silver_tier_path' в Admin-> Variables с путем до директории хранения обработанных данных
+7. Создай таблицу [weather_forecasts](#DDL-таблицы-слоя-источника) для загрузки сырых данных 
 ####  Запусти DAG 
 
 Перейди во вкладку DAGs и нажми кнопку "run DAG"
+
+### Примечания
+
+#### DDL таблицы слоя источника
+```sql
+CREATE TABLE public.weather_forecasts (
+    city VARCHAR(255),
+    date DATE,
+    hour INT,
+    temperature_c FLOAT,
+    pressure_mm FLOAT,
+    is_rainy INT
+);
+CREATE INDEX idx_weather_data_city ON public.weather_forecasts(city);
+CREATE INDEX idx_weather_data_date ON public.weather_forecasts(date);
+```
+
 
